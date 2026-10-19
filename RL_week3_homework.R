@@ -1,34 +1,34 @@
-#PSYC 259 Homework 3 - Data Transformation
-#For full credit, provide answers for at least 7/11
+# PSYC 259 Homework 3 - Data Transformation
+# For full credit, provide answers for at least 7/11
 
-#List names of students collaborating with: 
+# List names of students collaborating with:
 
 ### SETUP: RUN THIS BEFORE STARTING ----------
 
-#Load packages
+# Load packages
 library(tidyverse)
 ds <- read_csv("data_raw/rolling_stone_500.csv")
 
-### Question 1 ---------- 
+### Question 1 ----------
 
-#Use a function to check the class of all of the variables in 'ds' 
-#Convert "Year" to a numeric, saving it back to 'ds'
-#Use a function to check that your conversion succeeded
+# Use a function to check the class of all of the variables in 'ds'
+# Convert "Year" to a numeric, saving it back to 'ds'
+# Use a function to check that your conversion succeeded
 
-#ANSWER
+# ANSWER
 glimpse(ds)
 ds$Year <- as.numeric(ds$Year)
 print(ds$Year)
 is.numeric(ds$Year)
 
-### Question 2 ---------- 
+### Question 2 ----------
 
 # Using a dplyr function,
 # change ds so that all of the variables are lowercase
 
-#ANSWER
+# ANSWER
 library(dplyr)
-ds <- ds %>% 
+ds <- ds %>%
   clean_names("lower_camel")
 view(ds)
 
@@ -38,9 +38,9 @@ view(ds)
 # For example, 1971 would become 1970, 2001 would become 2000
 # Hint: read the documentation for ?floor and make sure year is numeric (from Question 1)
 
-#ANSWER
-ds <- ds %>% 
-  mutate(ds, round_year = round(year, digits= -1))
+# ANSWER
+ds <- ds %>%
+  mutate(ds, round_year = round(year, digits = -1))
 view(ds)
 
 
@@ -48,7 +48,7 @@ view(ds)
 
 # Sort the dataset by rank so that 1 is at the top
 
-#ANSWER
+# ANSWER
 ds <- ds %>% arrange(rank)
 
 
@@ -57,8 +57,10 @@ ds <- ds %>% arrange(rank)
 # Use filter and select to create a new tibble called 'top10'
 # That just has the artists and songs for the top 10 songs
 
-#ANSWER
-top10 <- ds %>% select(song, artist) %>% slice_head(n=10)
+# ANSWER
+top10 <- ds %>%
+  select(song, artist) %>%
+  slice_head(n = 10)
 print(top10)
 
 
@@ -68,21 +70,26 @@ print(top10)
 # and save the results to a new tibble called "ds_sum"
 # Hint, the function drop_na() might help. Read ?drop_na
 
-#ANSWER
-
+# ANSWER
+ds_sum <- ds %>%
+  drop_na(year) %>%
+  summarize(min_year = min(year), max_year = max(year), ave_year = mean(year))
+print(ds_sum)
 
 ### Question 7 ----------
 
-# Use filter on the original dataset 'ds' to find all of the artists/song titles from 
+# Use filter on the original dataset 'ds' to find all of the artists/song titles from
 # the min/max/mean years that you identified in 'ds_sum'
 # Use one filter command only, and sort the responses by year
 # Bonus: find a way to do it without hard coding the years (i.e. pull them from ds_sum)
 # (this might take some searching to find functions that will help)
 
-#ANSWER
+# ANSWER
+ds_responses <- filter(ds, (year %in% ds_sum))
+print(ds_responses)
 
 
-### Question 8 ---------- 
+### Question 8 ----------
 
 # There's an error here. The oldest song "Brass in Pocket"
 # is from 1979! Use mutate and ifelse to fix the error in 'ds'
@@ -90,18 +97,32 @@ print(top10)
 # recalculate the responses from Questions 6-7 to
 # find the correct oldest, averag-ist, and most recent songs
 
-#ANSWER
-
+# ANSWER
+ds <- ds %>% mutate(year = ifelse(year == 1879, 1979, year))
+ds <- ds %>%
+  mutate(ds, round_year = round(year, digits = -1))
+view(ds)
+ds_sum_v2 <- ds %>%
+  drop_na(year) %>%
+  summarize(min_year = min(year), max_year = max(year), ave_year = mean(year))
+print(ds_sum_v2)
+ds_responses_v2 <- filter(ds, (year %in% ds_sum_v2))
+print(ds_responses_v2)
 
 ### Question 9 ---------
 
-# Use group_by and summarize to find the average rank and 
+# Use group_by and summarize to find the average rank and
 # number of songs on the list by decade. To make things easier
 # filter out the NA values from decade before summarizing
 # You don't need to save the results anywhere
 # Use the pipe %>% to string the commands together
 
-#ANSWER
+# ANSWER
+ds %>%
+  filter(!is.na(round_year)) %>%
+  group_by(round_year) %>%
+  summarize(mean_rank = mean(rank), n_songs = n())
+print(ds)
 
 
 ### Question 10 --------
@@ -112,7 +133,12 @@ print(top10)
 # Use the pipe %>% to string the commands together
 # Check against your answers from Question 9 to make sure it matches
 
-#ANSWER
+# ANSWER
+ds %>%
+  filter(!is.na(round_year)) %>%
+  count(round_year) %>%
+  slice_max(n)
+# verified that the aswer is the same for question 9 and 10
 
 
 ### Question 11 ------
