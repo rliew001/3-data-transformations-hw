@@ -27,6 +27,7 @@ is.numeric(ds$Year)
 # change ds so that all of the variables are lowercase
 
 #ANSWER
+library(dplyr)
 ds <- ds %>% 
   clean_names("lower_camel")
 view(ds)
@@ -48,6 +49,7 @@ view(ds)
 # Sort the dataset by rank so that 1 is at the top
 
 #ANSWER
+ds <- ds %>% arrange(rank)
 
 
 ### Question 5 ----------
@@ -56,7 +58,8 @@ view(ds)
 # That just has the artists and songs for the top 10 songs
 
 #ANSWER
-
+top10 <- ds %>% select(song, artist) %>% slice_head(n=10)
+print(top10)
 
 
 ### Question 6 ----------
